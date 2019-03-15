@@ -323,7 +323,7 @@ void CloudCamera::subsampleSamples(int num_samples)
   // subsample the incoming samples
   else
   {
-    std::cout << "Using " << num_samples << " out of " << samples_.cols() << " available samples.\n"; 
+    std::cout << "Using " << num_samples << " out of " << samples_.cols() << " available samples.\n";
     std::vector<int> seq(samples_.cols());
     for (int i = 0; i < seq.size(); i++)
     {

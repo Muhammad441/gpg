@@ -116,6 +116,7 @@ int main(int argc, char* argv[])
     std::cout << "Input point cloud is empty or does not exist!\n";
     return (-1);
   }
+  std::cout << "Point cloud has been loaded cleanly\n";
 
   // Load surface normals from file.
   std::cout << argc << "\n";
@@ -127,6 +128,8 @@ int main(int argc, char* argv[])
 
   // Point cloud preprocessing: voxelize, remove statistical outliers, workspace filter, compute normals, subsample.
   candidates_generator.preprocessPointCloud(cloud_cam);
+  std::cout << "Point cloud has been processed \n";
+  std::cout << "Generating grasp candidiates \n";
 
   // Generate a list of grasp candidates.
   std::vector<Grasp> candidates = candidates_generator.generateGraspCandidates(cloud_cam);

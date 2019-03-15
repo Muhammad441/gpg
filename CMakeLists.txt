@@ -36,6 +36,12 @@ add_library(${PROJECT_NAME}_local_frame src/${PROJECT_NAME}/local_frame.cpp)
 add_library(${PROJECT_NAME}_plot src/${PROJECT_NAME}/plot.cpp)
 add_library(${PROJECT_NAME}_point_list src/${PROJECT_NAME}/point_list.cpp)
 
+add_executable (read_obj src/read_obj.cpp)
+target_link_libraries (read_obj ${PCL_LIBRARIES})
+
+
+#add_executable(${PROJECT_NAME}_obj_read src/obj_read.cpp)
+#target_link_libraries (obj_read ${PCL_LIBRARIES})
 # This executable is for testing the shared library
 add_executable(${PROJECT_NAME}_generate_candidates src/generate_candidates.cpp)
 target_link_libraries(${PROJECT_NAME}_generate_candidates 

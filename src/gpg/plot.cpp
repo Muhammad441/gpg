@@ -54,6 +54,7 @@ void Plot::plotHand3D(boost::shared_ptr<pcl::visualization::PCLVisualizer>& view
   Eigen::Vector3d base_center = left_bottom + 0.5 * (right_bottom - left_bottom) - 0.01 * hand.getApproach();
   Eigen::Vector3d approach_center = base_center - 0.04 * hand.getApproach();
 
+  std::cout<<base_center.x()<<' '<<base_center.y()<<' '<<base_center.z()<<'\n';
   Eigen::Quaterniond quat(hand.getFrame());
 
   std::string num = boost::lexical_cast<std::string>(idx);
@@ -330,7 +331,7 @@ void Plot::plotNormals(const PointCloudRGBA::Ptr& cloud, const PointCloudRGBA::P
 
 
 void Plot::plotNormals(const PointCloudRGBA::Ptr& cloud, const Eigen::Matrix3Xd& normals) const
-{		
+{
   PointCloudPointNormal::Ptr normals_cloud(new PointCloudPointNormal);
   for (int i=0; i < normals.cols(); i++)
   {
@@ -459,7 +460,7 @@ void Plot::runViewer(boost::shared_ptr<pcl::visualization::PCLVisualizer>& viewe
 
 boost::shared_ptr<pcl::visualization::PCLVisualizer> Plot::createViewer(std::string title) const
 {
-  boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer(title));  
+  boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer(title));
   viewer->setPosition(0, 0);
   viewer->setSize(640, 480);
   viewer->setBackgroundColor(1.0, 1.0, 1.0);

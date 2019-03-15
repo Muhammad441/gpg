@@ -13,7 +13,7 @@ CandidatesGenerator::CandidatesGenerator(const Parameters& params,
 void CandidatesGenerator::preprocessPointCloud(CloudCamera& cloud_cam)
 {
 //  const double VOXEL_SIZE = 0.002;
-  const double VOXEL_SIZE = 0.003;
+  const double VOXEL_SIZE = 0.01;
 
   std::cout << "Processing cloud with: " << cloud_cam.getCloudOriginal()->size() << " points.\n";
 
@@ -139,6 +139,7 @@ std::vector<Grasp> CandidatesGenerator::generateGraspCandidates(const CloudCamer
     }
   }
   std::cout << "Generated " << candidates.size() << " grasp candidates.\n";
+
 
   if (params_.plot_grasps_)
   {
