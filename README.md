@@ -73,3 +73,8 @@ Year = {2016},
 Eprint = {arXiv:1603.01564},
 } 
 ```
+
+## 7) Actual Command to use
+rosrun gpg generate_candidates /home/suhail/catkin_ws/src/gpg/cfg/params.cfg /home/suhail/graspit/models/objects/PCL/004_sugar_box/poisson/outfilefile.pcd
+
+
