@@ -1,6 +1,9 @@
 #include <gpg/plot.h>
-
-
+#include "ros/ros.h"
+#include "std_msgs/Bool.h"
+#include "gpg/grasp_poses.h"
+#include "geometry_msgs/Pose.h"
+gpg::grasp_poses grasp_poses;
 void Plot::plotFingers3D(const std::vector<GraspSet>& hand_set_list, const PointCloudRGBA::Ptr& cloud,
   std::string str, double outer_diameter, double finger_width, double hand_depth, double hand_height) const
 {
@@ -31,6 +34,18 @@ void Plot::plotFingers3D(const std::vector<Grasp>& hand_list, const PointCloudRG
     plotHand3D(viewer, hand_list[i], outer_diameter, finger_width, hand_depth, hand_height, i);
   }
 
+  ros::NodeHandle n;
+  ros::Publisher chatter_pub = n.advertise<gpg::grasp_poses>("gpg_grasp_poses", 1000);
+  ros::Rate loop_rate(10);
+  std::cout<<"About to publish"<<'\n';
+  while(ros::ok())
+  {
+    chatter_pub.publish(grasp_poses);
+    ros::param::set("gpg_flag",true);
+    ros::spinOnce();
+    loop_rate.sleep();
+  }
+
   pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGBA> rgb(cloud);
   viewer->addPointCloud<pcl::PointXYZRGBA>(cloud, rgb, "cloud");
   viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
@@ -54,15 +69,49 @@ void Plot::plotHand3D(boost::shared_ptr<pcl::visualization::PCLVisualizer>& view
   Eigen::Vector3d base_center = left_bottom + 0.5 * (right_bottom - left_bottom) - 0.01 * hand.getApproach();
   Eigen::Vector3d approach_center = base_center - 0.04 * hand.getApproach();
 
-  std::cout<<base_center.x()<<' '<<base_center.y()<<' '<<base_center.z()<<'\n';
   Eigen::Quaterniond quat(hand.getFrame());
+  geometry_msgs::Pose hand_pose;
+  hand_pose.position.x = base_center.x();
+  hand_pose.position.y = base_center.y();
+  hand_pose.position.z = base_center.z();
+  hand_pose.orientation.x = quat.x();
+  hand_pose.orientation.y = quat.y();
+  hand_pose.orientation.z = quat.z();
+  hand_pose.orientation.w = quat.w();
 
+  grasp_poses.poses.push_back(hand_pose);
+  // quat.normalize();
+  // Eigen::Quaterniond quat_rot,quat_new;
+  // quat_rot.x() = 0.0;
+  // quat_rot.y() = 0.0;
+  // quat_rot.z() = 0.0;
+  // quat_rot.w() = 1;
+  //
+  //
+  // quat_new = quat_rot * quat;
+  //
+  // quat_new.normalize();
+  // quat = quat_new;
   std::string num = boost::lexical_cast<std::string>(idx);
 
-  plotCube(viewer, left_center, quat, hand_depth, finger_width, hand_height, "left_finger_" + num);
-  plotCube(viewer, right_center, quat, hand_depth, finger_width, hand_height, "right_finger_" + num);
-  plotCube(viewer, base_center, quat, base_depth, outer_diameter, hand_height, "base_" + num);
-  plotCube(viewer, approach_center, quat, approach_depth, finger_width, 0.5*hand_height, "approach_" + num);
+  // if(hand.isFullAntipodal() == true || hand.isHalfAntipodal() == true)
+  std::ofstream file;
+  // if(idx <= 1)
+  {
+    file.open("/home/suhail/catkin_ws/src/gpg/Grasps/gpg_grasps.txt", ios::out | ios::app);
+    file.write((char*)&base_center,sizeof(base_center));
+    file.write((char*)&quat,sizeof(quat));
+
+    std::cout<<base_center.x()<<' '<<base_center.y()<<' '<<base_center.z()<<" "<<
+    " Quaternion x y z w "<<quat.x()<<" "<<quat.y()<<" "<<quat.z()<<" "<<quat.w()<<" "<<'\n';
+
+    plotCube(viewer, left_center, quat, hand_depth, finger_width, hand_height, "left_finger_" + num);
+    plotCube(viewer, right_center, quat, hand_depth, finger_width, hand_height, "right_finger_" + num);
+    plotCube(viewer, base_center, quat, base_depth, outer_diameter, hand_height, "base_" + num);
+    plotCube(viewer, approach_center, quat, approach_depth, finger_width, 0.5*hand_height, "approach_" + num);
+
+    file.close();
+  }
 }
 
 

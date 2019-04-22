@@ -8,6 +8,9 @@
 #include <gpg/hand_search.h>
 #include <gpg/config_file.h>
 
+#include <fstream>
+#include "ros/ros.h"
+#include "std_msgs/Bool.h"
 
 // function to read in a double array from a single line of a configuration file
 std::vector<double> stringToDouble(const std::string& str)
@@ -32,6 +35,8 @@ std::vector<double> stringToDouble(const std::string& str)
 int main(int argc, char* argv[])
 {
   // Read arguments from command line.
+  ros::init(argc,argv,"talker");
+  ros::param::set("gpg_flag",false);
   if (argc < 3)
   {
     std::cout << "Error: Not enough input arguments!\n\n";
@@ -40,7 +45,6 @@ int main(int argc, char* argv[])
     std::cout << "[NORMALS_FILE] (optional) contains a surface normal for each point in the cloud (*.csv).\n";
     return (-1);
   }
-
   // Read parameters from configuration file.
   ConfigFile config_file(argv[1]);
 

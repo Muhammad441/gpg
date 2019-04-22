@@ -7,8 +7,7 @@ main (int argc, char** argv)
 {
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
   pcl::OBJReader reader;
-  reader.read("/home/suhail/catkin_ws/src/gpg/PCL/002_master_chef_can_2/poisson/textured.obj", *cloud);
-  pcl::io::savePCDFileASCII ("/home/suhail/catkin_ws/src/gpg/PCL/002_master_chef_can_2/poisson/test_pcd.pcd", *cloud);
+  reader.read("/home/suhail/catkin_ws/src/gpg/PCL/Gas_Can/15222_Gas_Can_v1_NEW.obj", *cloud);
   // if (pcl::OBJReader::read<pcl::PointXYZ> ("/home/suhail/catkin_ws/src/gpg/PCL/002_master_chef_can_2/clouds/outfilefile.pcd", *cloud)) //* load the file
   // {
   //   PCL_ERROR ("Couldn't read file test_pcd.pcd \n");
@@ -19,9 +18,15 @@ main (int argc, char** argv)
             << " data points from test_pcd.pcd with the following fields: "
             << std::endl;
   for (size_t i = 0; i < cloud->points.size (); ++i)
-    std::cout << "    " << cloud->points[i].x
-              << " "    << cloud->points[i].y
-              << " "    << cloud->points[i].z << std::endl;
+    {
+      cloud->points[i].x *=20;
+      cloud->points[i].y *=20;
+      cloud->points[i].z *=20;
+    }
+    pcl::io::savePCDFileASCII ("/home/suhail/catkin_ws/src/gpg/PCL/Gas_Can/15222_Gas_Can_v1_NEW.pcd", *cloud);
+
+              // << " "    << cloud->points[i].y
+              // << " "    << cloud->points[i].z << std::endl;
 
   return (0);
 }
