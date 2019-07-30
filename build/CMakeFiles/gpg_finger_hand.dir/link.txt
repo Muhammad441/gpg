@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC -O3 -fopenmp -fPIC -Wno-deprecated -Wenum-compare   -shared -Wl,-soname,libgpg_finger_hand.so -o devel/lib/libgpg_finger_hand.so CMakeFiles/gpg_finger_hand.dir/src/gpg/finger_hand.cpp.o 

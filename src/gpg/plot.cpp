@@ -3,7 +3,10 @@
 #include "std_msgs/Bool.h"
 #include "gpg/grasp_poses.h"
 #include "geometry_msgs/Pose.h"
+#include "cruzr_planner/Graspit_pose.h"
+#include "cruzr_planner/Graspit_poses.h"
 gpg::grasp_poses grasp_poses;
+cruzr_planner::Graspit_poses grasp_poses_without_energy;
 void Plot::plotFingers3D(const std::vector<GraspSet>& hand_set_list, const PointCloudRGBA::Ptr& cloud,
   std::string str, double outer_diameter, double finger_width, double hand_depth, double hand_height) const
 {
@@ -23,6 +26,50 @@ void Plot::plotFingers3D(const std::vector<GraspSet>& hand_set_list, const Point
   plotFingers3D(hands, cloud, str, outer_diameter, finger_width, hand_depth, hand_height);
 }
 
+void displace_to_object_position()
+{
+  typedef Eigen::Transform<double, 3, Eigen::Affine> EigenTransform;
+  Eigen::Quaterniond quat, quat_2;
+  for(int i = 0; i < grasp_poses_without_energy.poses.size(); i++)
+  {
+    EigenTransform Global_Robot_Transform, Local_Robot_Transform, Final_Robot_Transform, Object_Transform, Robot_Transform_before_shifting, Robot_Transform_short_shifting;
+    Global_Robot_Transform.setIdentity();Local_Robot_Transform.setIdentity();Object_Transform.setIdentity();
+    Global_Robot_Transform.translate(Eigen::Vector3d(grasp_poses_without_energy.poses[i].pose.position.x,
+      grasp_poses_without_energy.poses[i].pose.position.y,grasp_poses_without_energy.poses[i].pose.position.z));
+    quat.w() = grasp_poses_without_energy.poses[i].pose.orientation.w;
+    quat.x() = grasp_poses_without_energy.poses[i].pose.orientation.x;
+    quat.y() = grasp_poses_without_energy.poses[i].pose.orientation.y;
+    quat.z() = grasp_poses_without_energy.poses[i].pose.orientation.z;
+    quat.normalize();
+    Global_Robot_Transform.rotate(quat);
+    Object_Transform.translate(Eigen::Vector3d(0.55,-0.2,0.6));
+    quat.w() = 0.924;
+    quat.x() = 0;
+    quat.y() = 0;
+    quat.z() = 0.383;
+    quat.normalize();
+    Object_Transform.rotate(quat);
+
+    Local_Robot_Transform.translate(Eigen::Vector3d(-0.12,0.0,0.0));
+    Robot_Transform_before_shifting = Object_Transform * Global_Robot_Transform;
+    Final_Robot_Transform = Robot_Transform_before_shifting * Local_Robot_Transform;
+
+    Local_Robot_Transform.setIdentity();
+    Local_Robot_Transform.translate(Eigen::Vector3d(-0.06,0.0,0.0));
+    Robot_Transform_short_shifting = Robot_Transform_before_shifting * Local_Robot_Transform;
+    Eigen::Matrix3d rotation_matrix= Robot_Transform_before_shifting.rotation();
+    Eigen::Quaterniond q_Hand_to_world(rotation_matrix);
+
+    grasp_poses_without_energy.poses[i].pose.position.x = Robot_Transform_short_shifting.translation()[0];
+    grasp_poses_without_energy.poses[i].pose.position.y = Robot_Transform_short_shifting.translation()[1];
+    grasp_poses_without_energy.poses[i].pose.position.z = Robot_Transform_short_shifting.translation()[2];
+    grasp_poses_without_energy.poses[i].pose.orientation.w = q_Hand_to_world.w();
+    grasp_poses_without_energy.poses[i].pose.orientation.x = q_Hand_to_world.x();
+    grasp_poses_without_energy.poses[i].pose.orientation.y = q_Hand_to_world.y();
+    grasp_poses_without_energy.poses[i].pose.orientation.z = q_Hand_to_world.z();
+  }
+}
+
 
 void Plot::plotFingers3D(const std::vector<Grasp>& hand_list, const PointCloudRGBA::Ptr& cloud,
   std::string str, double outer_diameter, double finger_width, double hand_depth, double hand_height) const
@@ -36,11 +83,14 @@ void Plot::plotFingers3D(const std::vector<Grasp>& hand_list, const PointCloudRG
 
   ros::NodeHandle n;
   ros::Publisher chatter_pub = n.advertise<gpg::grasp_poses>("gpg_grasp_poses", 1000);
+  ros::Publisher chatter_pub_without_energy = n.advertise<cruzr_planner::Graspit_poses>("Final_Grasps_with_energy", 1000);
   ros::Rate loop_rate(10);
   std::cout<<"About to publish"<<'\n';
+  displace_to_object_position();
   while(ros::ok())
   {
     chatter_pub.publish(grasp_poses);
+    chatter_pub_without_energy.publish(grasp_poses_without_energy);
     ros::param::set("gpg_flag",true);
     ros::spinOnce();
     loop_rate.sleep();
@@ -80,6 +130,13 @@ void Plot::plotHand3D(boost::shared_ptr<pcl::visualization::PCLVisualizer>& view
   hand_pose.orientation.w = quat.w();
 
   grasp_poses.poses.push_back(hand_pose);
+
+  cruzr_planner::Graspit_pose grasp_pose;
+  grasp_pose.pose = hand_pose;
+  grasp_pose.energy = 0;
+  grasp_pose.legal = true;
+  grasp_poses_without_energy.poses.push_back(grasp_pose);
+
   // quat.normalize();
   // Eigen::Quaterniond quat_rot,quat_new;
   // quat_rot.x() = 0.0;

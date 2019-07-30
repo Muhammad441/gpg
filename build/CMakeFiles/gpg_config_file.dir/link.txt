@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC -O3 -fopenmp -fPIC -Wno-deprecated -Wenum-compare   -shared -Wl,-soname,libgpg_config_file.so -o devel/lib/libgpg_config_file.so CMakeFiles/gpg_config_file.dir/src/gpg/config_file.cpp.o 

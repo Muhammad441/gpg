@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/suhail/catkin_ws/src/gpg/build/devel/setup.sh

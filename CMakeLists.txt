@@ -7,6 +7,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   geometry_msgs
   message_generation
+  cruzr_planner
+  
 )
 find_package(PCL REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -53,6 +55,7 @@ set(CMAKE_CXX_FLAGS "-O3 -fopenmp -fPIC -Wno-deprecated -Wenum-compare")
  add_message_files(
    FILES
    grasp_poses.msg
+   
 #   Message2.msg
  )
 
@@ -74,6 +77,7 @@ set(CMAKE_CXX_FLAGS "-O3 -fopenmp -fPIC -Wno-deprecated -Wenum-compare")
 generate_messages(
    DEPENDENCIES
    geometry_msgs
+   cruzr_planner
 #   std_msgs
  )
 
@@ -109,7 +113,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES beginner_tutorials
-  CATKIN_DEPENDS roscpp rospy std_msgs eigen_conversions message_runtime geometry_msgs
+  CATKIN_DEPENDS roscpp rospy std_msgs eigen_conversions message_runtime geometry_msgs cruzr_planner
 #  DEPENDS system_lib
 )
 
